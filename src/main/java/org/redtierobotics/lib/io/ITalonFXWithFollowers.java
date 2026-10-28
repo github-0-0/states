@@ -1,0 +1,155 @@
+package org.redtierobotics.lib.io;
+
+import static org.wpilib.units.Units.Rotations;
+import static org.wpilib.units.Units.RotationsPerSecond;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.*;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import org.wpilib.telemetry.Telemetry;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Temperature;
+import org.wpilib.units.measure.Voltage;
+
+public class ITalonFXWithFollowers extends ITalonFX {
+	public record TalonFXFollower(TalonFX talonFx, MotorAlignmentValue alignment) {}
+
+	protected String[] positionKeys;
+	protected String[] velocityKeys;
+	protected String[] voltageKeys;
+	protected String[] statorCurrentKeys;
+	protected String[] supplyCurrentKeys;
+	protected String[] temperatureKeys;
+	protected String[] controlRequestKeys;
+
+	protected TalonFX talonFx;
+	protected TalonFXFollower[] followers;
+	protected TalonFX[] motors;
+
+	protected RunMode mode = RunMode.VOLTAGE;
+
+	protected StatusSignal<Angle>[] positionSignals;
+	protected StatusSignal<AngularVelocity>[] velocitySignals;
+	protected StatusSignal<Voltage>[] voltageSignals;
+	protected StatusSignal<Current>[] statorCurrentSignals;
+	protected StatusSignal<Current>[] supplyCurrentSignals;
+	protected StatusSignal<Temperature>[] temperatureSignals;
+
+	@SuppressWarnings("unchecked")
+	public ITalonFXWithFollowers(TalonFX talonFx, String key, TalonFXFollower... followers) {
+		super(talonFx, key);
+		this.followers = followers;
+
+		for (TalonFXFollower follower : followers) {
+			follower.talonFx.setControl(new Follower(talonFx.getDeviceID(), follower.alignment));
+		}
+
+		motors = new TalonFX[followers.length + 1];
+		motors[0] = talonFx;
+
+		for (int i = 0; i < followers.length; i++) {
+			motors[i + 1] = followers[i].talonFx;
+		}
+
+		positionSignals = new StatusSignal[motors.length];
+		velocitySignals = new StatusSignal[motors.length];
+
+		for (int i = 0; i < motors.length; i++) {
+			positionSignals[i] = motors[i].getPosition();
+			velocitySignals[i] = motors[i].getVelocity();
+		}
+
+		positionSignals = new StatusSignal[motors.length];
+		velocitySignals = new StatusSignal[motors.length];
+		voltageSignals = new StatusSignal[motors.length];
+		statorCurrentSignals = new StatusSignal[motors.length];
+		supplyCurrentSignals = new StatusSignal[motors.length];
+		temperatureSignals = new StatusSignal[motors.length];
+
+		for (int i = 0; i < motors.length; i++) {
+			positionSignals[i] = motors[i].getPosition();
+			velocitySignals[i] = motors[i].getVelocity();
+			voltageSignals[i] = motors[i].getMotorVoltage();
+			statorCurrentSignals[i] = motors[i].getStatorCurrent();
+			supplyCurrentSignals[i] = motors[i].getSupplyCurrent();
+			temperatureSignals[i] = motors[i].getDeviceTemp();
+		}
+
+		positionKeys = new String[motors.length];
+		velocityKeys = new String[motors.length];
+		voltageKeys = new String[motors.length];
+		statorCurrentKeys = new String[motors.length];
+		supplyCurrentKeys = new String[motors.length];
+		temperatureKeys = new String[motors.length];
+		controlRequestKeys = new String[motors.length];
+
+		for (int i = 0; i < motors.length; i++) {
+			positionKeys[i] = key + "/Motor" + i + "/Position";
+			velocityKeys[i] = key + "/Motor" + i + "/Velocity";
+			voltageKeys[i] = key + "/Motor" + i + "/Voltage";
+			statorCurrentKeys[i] = key + "/Motor" + i + "/StatorCurrent";
+			supplyCurrentKeys[i] = key + "/Motor" + i + "/SupplyCurrent";
+			temperatureKeys[i] = key + "/Motor" + i + "/Temperature";
+			controlRequestKeys[i] = key + "/Motor" + i + "/ControlRequest";
+		}
+	}
+
+	@Override
+	public Angle getPosition() {
+		double position = 0.0;
+
+		for (StatusSignal<Angle> signal : positionSignals) {
+			position += signal.getValue().in(Rotations);
+		}
+
+		position /= positionSignals.length;
+
+		return Rotations.of(position);
+	}
+
+	@Override
+	public AngularVelocity getVelocity() {
+		double velocity = 0.0;
+
+		for (StatusSignal<AngularVelocity> signal : velocitySignals) {
+			velocity += signal.getValue().in(RotationsPerSecond);
+		}
+
+		velocity /= velocitySignals.length;
+
+		return RotationsPerSecond.of(velocity);
+	}
+
+	@Override
+	public void refresh() {
+		for (int i = 0; i < positionSignals.length; i++) {
+			BaseStatusSignal.refreshAll(
+					positionSignals[i],
+					velocitySignals[i],
+					voltageSignals[i],
+					statorCurrentSignals[i],
+					supplyCurrentSignals[i],
+					temperatureSignals[i]);
+		}
+	}
+
+	@Override
+	public void log() {
+		for (int i = 0; i < positionSignals.length; i++) {
+			Telemetry.log(positionKeys[i], positionSignals[i].getValue());
+			Telemetry.log(velocityKeys[i], velocitySignals[i].getValue());
+			Telemetry.log(voltageKeys[i], voltageSignals[i].getValue());
+			Telemetry.log(statorCurrentKeys[i], statorCurrentSignals[i].getValue());
+			Telemetry.log(supplyCurrentKeys[i], supplyCurrentSignals[i].getValue());
+			Telemetry.log(temperatureKeys[i], temperatureSignals[i].getValue());
+			Telemetry.log(controlRequestKeys[i], motors[i].getAppliedControl().getName());
+		}
+
+		Telemetry.log(positionKey, getPosition());
+		Telemetry.log(velocityKey, getVelocity());
+	}
+}
