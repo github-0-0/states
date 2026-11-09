@@ -3,7 +3,6 @@ package org.redtierobotics.lib.sim;
 import static org.wpilib.units.Units.KilogramSquareMeters;
 import static org.wpilib.units.Units.Meters;
 import static org.wpilib.units.Units.Radians;
-import static org.wpilib.units.Units.Rotations;
 
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.simulation.SingleJointedArmSim;
@@ -13,11 +12,12 @@ import org.wpilib.units.measure.MomentOfInertia;
 
 public class SingleJointedArmSimulation implements Simulation {
 	SingleJointedArmSim sim;
-	double ratio;
+	double rotorToMechanismRatio;
+	double previousVelocity = 0.0;
+	double acceleration = 0.0;
 
 	public SingleJointedArmSimulation(
-			Angle output,
-			Angle input,
+			double gearRatio,
 			MomentOfInertia moi,
 			Distance cogPivotDistance,
 			Angle minHeight,
@@ -25,8 +25,7 @@ public class SingleJointedArmSimulation implements Simulation {
 			Angle startingHeight,
 			DCMotor gearbox,
 			double... measurementStdDevs) {
-		double gearRatio = input.in(Rotations) / output.in(Rotations);
-		double radiansToRotor = input.in(Rotations) / output.in(Radians);
+		rotorToMechanismRatio = gearRatio / (2 * Math.PI);
 		sim =
 				new SingleJointedArmSim(
 						gearbox,
@@ -38,12 +37,6 @@ public class SingleJointedArmSimulation implements Simulation {
 						true,
 						startingHeight.in(Radians),
 						measurementStdDevs);
-		ratio = radiansToRotor;
-	}
-
-	@Override
-	public double getRatio() {
-		return ratio;
 	}
 
 	@Override
@@ -53,7 +46,9 @@ public class SingleJointedArmSimulation implements Simulation {
 
 	@Override
 	public void update(double dt) {
+		previousVelocity = getVelocity();
 		sim.update(dt);
+		acceleration = (getVelocity() - previousVelocity) / dt;
 	}
 
 	@Override
@@ -68,6 +63,21 @@ public class SingleJointedArmSimulation implements Simulation {
 
 	@Override
 	public double getAcceleration() {
-		return 0.0;
+		return acceleration;
+	}
+
+	@Override
+	public double getRotorPosition() {
+		return getPosition() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorVelocity() {
+		return getVelocity() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorAcceleration() {
+		return getAcceleration() * rotorToMechanismRatio;
 	}
 }

@@ -1,12 +1,14 @@
 package org.redtierobotics.lib.io;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import org.redtierobotics.lib.sim.Simulation;
 import org.wpilib.system.Notifier;
 
 public class ISimTalonFXWithFollowers extends ITalonFXWithFollowers {
 	protected TalonFXSimState[] simStates;
+	protected boolean[] alignments;
 	protected Simulation simulation;
 	protected Notifier simNotifier;
 
@@ -18,9 +20,11 @@ public class ISimTalonFXWithFollowers extends ITalonFXWithFollowers {
 
 		simStates = new TalonFXSimState[followers.length + 1];
 		simStates[0] = talonFx.getSimState();
+		alignments[0] = true;
 
 		for (int i = 0; i < followers.length; i++) {
 			simStates[i + 1] = followers[i].talonFx().getSimState();
+			alignments[i + 1] = followers[i - 1].alignment() == MotorAlignmentValue.Aligned;
 		}
 
 		simNotifier =
@@ -43,18 +47,10 @@ public class ISimTalonFXWithFollowers extends ITalonFXWithFollowers {
 		simulation.update(dt);
 
 		for (int i = 0; i < simStates.length; i++) {
-			double alignment =
-					i == 0
-									|| followers[i - 1].alignment()
-											== com.ctre.phoenix6.signals.MotorAlignmentValue.Aligned
-							? 1.0
-							: -1.0;
-
-			simStates[i].setRawRotorPosition(
-					simulation.getPosition() * simulation.getRatio() * alignment);
-			simStates[i].setRotorVelocity(simulation.getVelocity() * simulation.getRatio() * alignment);
-			simStates[i].setRotorAcceleration(
-					simulation.getAcceleration() * simulation.getRatio() * alignment);
+			double alignment = alignments[i] ? 1.0 : -1.0;
+			simStates[i].setRawRotorPosition(simulation.getRotorPosition() * alignment);
+			simStates[i].setRotorVelocity(simulation.getRotorVelocity() * alignment);
+			simStates[i].setRotorAcceleration(simulation.getRotorAcceleration() * alignment);
 		}
 
 		refresh();

@@ -28,9 +28,9 @@ public class ISimTalonFX extends ITalonFX {
 		double voltage = simState.getMotorVoltage();
 		simulation.input(voltage);
 		simulation.update(dt);
-		simState.setRawRotorPosition(simulation.getPosition() * simulation.getRatio());
-		simState.setRotorVelocity(simulation.getVelocity() * simulation.getRatio());
-		simState.setRotorAcceleration(simulation.getAcceleration() * simulation.getRatio());
+		simState.setRawRotorPosition(simulation.getRotorPosition());
+		simState.setRotorVelocity(simulation.getRotorVelocity());
+		simState.setRotorAcceleration(simulation.getRotorAcceleration());
 		refresh();
 	}
 }

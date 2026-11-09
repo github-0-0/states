@@ -7,10 +7,13 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import java.util.function.Supplier;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 public class CtreUtil {
 	public static final int MAX_RETRIES = 10;
 
+	@SuppressWarnings("resource")
 	public static StatusCode tryUntilOk(int max, Supplier<StatusCode> function, int deviceId) {
 		StatusCode statusCode = StatusCode.OK;
 		for (int i = 0; i < max; i++) {
@@ -20,8 +23,11 @@ public class CtreUtil {
 			}
 		}
 		if (statusCode != StatusCode.OK) {
-			System.err.println(
-					"Error calling " + function + " on ctre device id " + deviceId + ": " + statusCode);
+			new Alert(
+							"Failed",
+							"Error calling " + function + " on ctre device id " + deviceId + ": " + statusCode,
+							Level.HIGH)
+					.set(true);
 		}
 		return statusCode;
 	}

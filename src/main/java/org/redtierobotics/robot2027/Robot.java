@@ -7,7 +7,6 @@ package org.redtierobotics.robot2027;
 import org.redtierobotics.lib.subsystem.SubsystemManager;
 import org.wpilib.framework.TimedRobot;
 import org.wpilib.tunable.Selectable;
-import org.wpilib.tunable.Tunables;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -15,8 +14,6 @@ import org.wpilib.tunable.Tunables;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-	private static final String DEFAULT_AUTO = "Default";
-	private static final String CUSTOM_AUTO = "My Auto";
 	private String autoSelected;
 	private final Selectable<String> chooser = new Selectable<>();
 
@@ -27,10 +24,6 @@ public class Robot extends TimedRobot {
 	 * initialization code.
 	 */
 	public Robot() {
-		chooser.addDefault("Default Auto", DEFAULT_AUTO);
-		chooser.add("My Auto", CUSTOM_AUTO);
-		Tunables.publish("Auto choices", chooser);
-
 		sm = new SubsystemManager();
 	}
 
@@ -65,17 +58,7 @@ public class Robot extends TimedRobot {
 
 	/** This function is called periodically during autonomous. */
 	@Override
-	public void autonomousPeriodic() {
-		switch (autoSelected) {
-			case CUSTOM_AUTO:
-				// Put custom auto code here
-				break;
-			case DEFAULT_AUTO:
-			default:
-				// Put default auto code here
-				break;
-		}
-	}
+	public void autonomousPeriodic() {}
 
 	/** This function is called once when teleop is enabled. */
 	@Override

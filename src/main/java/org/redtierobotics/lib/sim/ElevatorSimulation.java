@@ -9,8 +9,20 @@ import org.wpilib.units.measure.Mass;
 
 public class ElevatorSimulation implements Simulation {
 	ElevatorSim sim;
-	double ratio;
+	double rotorToMechanismRatio;
 
+	/**
+	 * Creates a simulation of a generic linear mechanism
+	 *
+	 * @param gearRatio Ratio of motor rotations to sprocket rotations
+	 * @param carriageMass Load mass
+	 * @param sprocketRadius
+	 * @param minHeight
+	 * @param maxHeight
+	 * @param startingHeight
+	 * @param gearbox
+	 * @param measurementStdDevs
+	 */
 	public ElevatorSimulation(
 			double gearRatio,
 			Mass carriageMass,
@@ -20,6 +32,7 @@ public class ElevatorSimulation implements Simulation {
 			Distance startingHeight,
 			DCMotor gearbox,
 			double... measurementStdDevs) {
+		rotorToMechanismRatio = gearRatio / (2 * Math.PI) * sprocketRadius.in(Meters);
 		sim =
 				new ElevatorSim(
 						gearbox,
@@ -31,13 +44,6 @@ public class ElevatorSimulation implements Simulation {
 						true,
 						startingHeight.in(Meters),
 						measurementStdDevs);
-
-		ratio = gearRatio / (2 * Math.PI * sprocketRadius.in(Meters));
-	}
-
-	@Override
-	public double getRatio() {
-		return ratio;
 	}
 
 	@Override
@@ -63,5 +69,20 @@ public class ElevatorSimulation implements Simulation {
 	@Override
 	public double getAcceleration() {
 		return 0.0;
+	}
+
+	@Override
+	public double getRotorPosition() {
+		return getPosition() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorVelocity() {
+		return getVelocity() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorAcceleration() {
+		return getAcceleration() * rotorToMechanismRatio;
 	}
 }

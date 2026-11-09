@@ -1,38 +1,25 @@
 package org.redtierobotics.lib.sim;
 
 import static org.wpilib.units.Units.KilogramSquareMeters;
-import static org.wpilib.units.Units.Radians;
-import static org.wpilib.units.Units.Rotations;
 
 import org.wpilib.math.system.DCMotor;
 import org.wpilib.math.system.Models;
 import org.wpilib.simulation.FlywheelSim;
-import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.MomentOfInertia;
 
 public class FlywheelSimulation implements Simulation {
 	FlywheelSim sim;
-	double ratio;
-	double acc;
+	double rotorToMechanismRatio;
+	double accumulator;
 
 	public FlywheelSimulation(
-			Angle output,
-			Angle input,
-			MomentOfInertia moi,
-			DCMotor gearbox,
-			double... measurementStdDevs) {
-		var gearRatio = input.in(Rotations) / output.in(Rotations);
+			double gearRatio, MomentOfInertia moi, DCMotor gearbox, double... measurementStdDevs) {
+		rotorToMechanismRatio = gearRatio / (2 * Math.PI);
 		sim =
 				new FlywheelSim(
 						Models.flywheelFromPhysicalConstants(gearbox, moi.in(KilogramSquareMeters), gearRatio),
 						gearbox,
 						measurementStdDevs);
-		ratio = input.in(Rotations) / output.in(Radians);
-	}
-
-	@Override
-	public double getRatio() {
-		return ratio;
 	}
 
 	@Override
@@ -43,12 +30,12 @@ public class FlywheelSimulation implements Simulation {
 	@Override
 	public void update(double dt) {
 		sim.update(dt);
-		acc += dt * sim.getAngularVelocity();
+		accumulator += dt * sim.getAngularVelocity();
 	}
 
 	@Override
 	public double getPosition() {
-		return acc;
+		return accumulator;
 	}
 
 	@Override
@@ -59,5 +46,20 @@ public class FlywheelSimulation implements Simulation {
 	@Override
 	public double getAcceleration() {
 		return sim.getAngularAcceleration();
+	}
+
+	@Override
+	public double getRotorPosition() {
+		return getPosition() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorVelocity() {
+		return getVelocity() * rotorToMechanismRatio;
+	}
+
+	@Override
+	public double getRotorAcceleration() {
+		return getAcceleration() * rotorToMechanismRatio;
 	}
 }

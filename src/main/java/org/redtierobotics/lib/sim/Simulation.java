@@ -1,8 +1,6 @@
 package org.redtierobotics.lib.sim;
 
 public interface Simulation {
-	double getRatio();
-
 	void input(double voltage);
 
 	void update(double dt);
@@ -12,4 +10,10 @@ public interface Simulation {
 	double getVelocity();
 
 	double getAcceleration();
+
+	double getRotorPosition();
+
+	double getRotorVelocity();
+
+	double getRotorAcceleration();
 }

@@ -1,6 +1,8 @@
 package org.redtierobotics.lib.io;
 
 import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.DegreesPerSecond;
 import static org.wpilib.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -41,6 +43,9 @@ public class ITalonFX implements IMotor {
 	protected String controlRequestKey;
 
 	protected TalonFX motor;
+
+	protected Angle targetPosition = Degrees.of(0);
+	protected AngularVelocity targetVelocity = DegreesPerSecond.of(0);
 
 	protected RunMode mode = RunMode.VOLTAGE;
 	protected NeutralOut neutralOut = new NeutralOut();
@@ -123,6 +128,7 @@ public class ITalonFX implements IMotor {
 
 	@Override
 	public void setPosition(Angle position) {
+		targetPosition = position;
 		switch (mode) {
 			case VOLTAGE:
 				positionVoltage.withPosition(position).withFeedForward(positionVoltageFeedforward);
@@ -156,6 +162,7 @@ public class ITalonFX implements IMotor {
 
 	@Override
 	public void setVelocity(AngularVelocity velocity) {
+		targetVelocity = velocity;
 		switch (mode) {
 			case VOLTAGE:
 				velocityVoltage.withVelocity(velocity).withFeedForward(velocityVoltageFeedforward);
@@ -216,6 +223,16 @@ public class ITalonFX implements IMotor {
 	@Override
 	public AngularVelocity getVelocity() {
 		return velocitySignal.getValue();
+	}
+
+	@Override
+	public boolean positionIsNear(Angle eps) {
+		return getPosition().isNear(targetPosition, eps);
+	}
+
+	@Override
+	public boolean velocityIsNear(AngularVelocity eps) {
+		return getVelocity().isNear(targetVelocity, eps);
 	}
 
 	public void refresh() {

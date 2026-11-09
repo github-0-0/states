@@ -42,6 +42,10 @@ public interface IMotor {
 
 	AngularVelocity getVelocity();
 
+	boolean positionIsNear(Angle eps);
+
+	boolean velocityIsNear(AngularVelocity eps);
+
 	void reset(Angle position);
 
 	void log();
