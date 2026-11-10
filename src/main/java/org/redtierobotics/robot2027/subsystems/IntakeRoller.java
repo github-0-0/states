@@ -1,13 +1,15 @@
 package org.redtierobotics.robot2027.subsystems;
 
+import static org.wpilib.units.Units.PoundSquareInches;
 import static org.wpilib.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import org.redtierobotics.lib.config.MechanismConfigs.RollerConfig;
 import org.redtierobotics.lib.io.IMotor;
-import org.redtierobotics.lib.io.ITalonFX;
 import org.redtierobotics.lib.subsystem.State;
 import org.redtierobotics.lib.subsystem.Subsystem;
 import org.redtierobotics.robot2027.Ports;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.units.measure.AngularVelocity;
 
 public class IntakeRoller implements Subsystem {
@@ -23,13 +25,16 @@ public class IntakeRoller implements Subsystem {
 			io.setVelocity(velocity);
 		}
 
-		public IntakeRoller getSubsystem() {
+		public Subsystem getSubsystem() {
 			return IntakeRoller.getInstance();
 		}
 	}
 
+	public RollerConfig config = new RollerConfig(1, PoundSquareInches.of(0.5));
+
 	public TalonFX motor = Ports.INTAKE_ROLLER.getTalonFX();
-	public IMotor io = new ITalonFX(motor, "IntakeRoller");
+	public IMotor io =
+			IMotor.getTalonFxIo(motor, "IntakeRoller", config.getSim(DCMotor.getKrakenX44(1)));
 
 	private static IntakeRoller instance;
 
@@ -53,7 +58,9 @@ public class IntakeRoller implements Subsystem {
 		return STOP;
 	}
 
-	public void log() {}
+	public void log() {
+		io.log();
+	}
 
 	public boolean atTarget() {
 		return true; // does not matter

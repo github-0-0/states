@@ -9,11 +9,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import org.redtierobotics.lib.config.MechanismConfigs.ElevatorConfig;
 import org.redtierobotics.lib.io.IMotor;
-import org.redtierobotics.lib.io.ITalonFXWithFollowers;
 import org.redtierobotics.lib.io.ITalonFXWithFollowers.TalonFXFollower;
 import org.redtierobotics.lib.subsystem.State;
 import org.redtierobotics.lib.subsystem.Subsystem;
 import org.redtierobotics.robot2027.Ports;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.units.measure.Distance;
 
 public class Elevator implements Subsystem {
@@ -29,7 +29,7 @@ public class Elevator implements Subsystem {
 			setPosition(position);
 		}
 
-		public Elevator getSubsystem() {
+		public Subsystem getSubsystem() {
 			return Elevator.getInstance();
 		}
 	}
@@ -41,8 +41,11 @@ public class Elevator implements Subsystem {
 			new ElevatorConfig(5, Inches.of(1), Inches.of(0), Inches.of(60), Pounds.of(10));
 
 	public IMotor io =
-			new ITalonFXWithFollowers(
-					leftMotor, "Elevator", new TalonFXFollower(rightMotor, MotorAlignmentValue.Opposed));
+			IMotor.getTalonFxIo(
+					leftMotor,
+					"Elevator",
+					config.getSim(config.minHeight(), DCMotor.getKrakenX60(1)),
+					new TalonFXFollower(rightMotor, MotorAlignmentValue.Opposed));
 
 	private static Elevator instance;
 
@@ -70,7 +73,9 @@ public class Elevator implements Subsystem {
 		return HOME;
 	}
 
-	public void log() {}
+	public void log() {
+		io.log();
+	}
 
 	public boolean atTarget() {
 		return io.positionIsNear(

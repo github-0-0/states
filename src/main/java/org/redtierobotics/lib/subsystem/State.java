@@ -8,4 +8,8 @@ public interface State {
 	default void onExit() {}
 
 	Subsystem getSubsystem();
+
+	default void apply() {
+		getSubsystem().transition(this);
+	}
 }

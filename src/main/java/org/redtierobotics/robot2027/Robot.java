@@ -4,7 +4,16 @@
 
 package org.redtierobotics.robot2027;
 
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import org.redtierobotics.lib.subsystem.SubsystemManager;
+import org.redtierobotics.robot2027.subsystems.Arm;
+import org.redtierobotics.robot2027.subsystems.Elevator;
+import org.redtierobotics.robot2027.subsystems.EndEffector;
+import org.redtierobotics.robot2027.subsystems.Indexer;
+import org.redtierobotics.robot2027.subsystems.IntakePivot;
+import org.redtierobotics.robot2027.subsystems.IntakeRoller;
+import org.wpilib.driverstation.XboxController;
 import org.wpilib.framework.TimedRobot;
 import org.wpilib.tunable.Selectable;
 
@@ -16,6 +25,7 @@ import org.wpilib.tunable.Selectable;
 public class Robot extends TimedRobot {
 	private String autoSelected;
 	private final Selectable<String> chooser = new Selectable<>();
+	public static XboxController controller;
 
 	private final SubsystemManager sm;
 
@@ -24,7 +34,19 @@ public class Robot extends TimedRobot {
 	 * initialization code.
 	 */
 	public Robot() {
+		DogLog.setOptions(
+				new DogLogOptions().withCaptureDs(true).withLogExtras(true).withNtTunables(true));
+
 		sm = new SubsystemManager();
+		sm.registerSubsystem(Arm.getInstance());
+		sm.registerSubsystem(Elevator.getInstance());
+		sm.registerSubsystem(EndEffector.getInstance());
+		sm.registerSubsystem(Indexer.getInstance());
+		sm.registerSubsystem(IntakePivot.getInstance());
+		sm.registerSubsystem(IntakeRoller.getInstance());
+
+		DogLog.log("test", "test");
+		DogLog.time("Time");
 	}
 
 	/**

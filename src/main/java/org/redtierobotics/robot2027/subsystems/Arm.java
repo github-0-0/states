@@ -7,10 +7,10 @@ import static org.wpilib.units.Units.PoundSquareInches;
 import com.ctre.phoenix6.hardware.TalonFX;
 import org.redtierobotics.lib.config.MechanismConfigs.ArmConfig;
 import org.redtierobotics.lib.io.IMotor;
-import org.redtierobotics.lib.io.ITalonFX;
 import org.redtierobotics.lib.subsystem.State;
 import org.redtierobotics.lib.subsystem.Subsystem;
 import org.redtierobotics.robot2027.Ports;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.units.measure.Angle;
 
 public class Arm implements Subsystem {
@@ -26,17 +26,18 @@ public class Arm implements Subsystem {
 			io.setPosition(position);
 		}
 
-		public Arm getSubsystem() {
+		public Subsystem getSubsystem() {
 			return Arm.getInstance();
 		}
 	}
 
-	public TalonFX motor = Ports.ARM.getTalonFX();
-	public IMotor io = new ITalonFX(motor, "Arm");
-
 	public ArmConfig config =
 			new ArmConfig(
 					50, Degrees.of(-180), Degrees.of(180), Inches.of(12), PoundSquareInches.of(100));
+
+	public TalonFX motor = Ports.ARM.getTalonFX();
+	public IMotor io =
+			IMotor.getTalonFxIo(motor, "Arm", config.getSim(config.minAngle(), DCMotor.getKrakenX60(1)));
 
 	private static Arm instance;
 
@@ -62,7 +63,9 @@ public class Arm implements Subsystem {
 		return HOME;
 	}
 
-	public void log() {}
+	public void log() {
+		io.log();
+	}
 
 	public boolean atTarget() {
 		return io.positionIsNear(Degrees.of(3));

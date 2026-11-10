@@ -8,7 +8,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import org.wpilib.telemetry.Telemetry;
+import dev.doglog.DogLog;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.Current;
@@ -140,16 +140,16 @@ public class ITalonFXWithFollowers extends ITalonFX {
 	@Override
 	public void log() {
 		for (int i = 0; i < positionSignals.length; i++) {
-			Telemetry.log(positionKeys[i], positionSignals[i].getValue());
-			Telemetry.log(velocityKeys[i], velocitySignals[i].getValue());
-			Telemetry.log(voltageKeys[i], voltageSignals[i].getValue());
-			Telemetry.log(statorCurrentKeys[i], statorCurrentSignals[i].getValue());
-			Telemetry.log(supplyCurrentKeys[i], supplyCurrentSignals[i].getValue());
-			Telemetry.log(temperatureKeys[i], temperatureSignals[i].getValue());
-			Telemetry.log(controlRequestKeys[i], motors[i].getAppliedControl().getName());
+			DogLog.log(positionKeys[i], positionSignals[i].getValue());
+			DogLog.log(velocityKeys[i], velocitySignals[i].getValue());
+			DogLog.log(voltageKeys[i], voltageSignals[i].getValue());
+			DogLog.log(statorCurrentKeys[i], statorCurrentSignals[i].getValue());
+			DogLog.log(supplyCurrentKeys[i], supplyCurrentSignals[i].getValue());
+			DogLog.log(temperatureKeys[i], temperatureSignals[i].getValue());
+			DogLog.log(controlRequestKeys[i], motors[i].getAppliedControl().getName());
 		}
 
-		Telemetry.log(positionKey, getPosition());
-		Telemetry.log(velocityKey, getVelocity());
+		DogLog.log(positionKey, getPosition());
+		DogLog.log(velocityKey, getVelocity());
 	}
 }

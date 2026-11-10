@@ -20,11 +20,12 @@ public class ISimTalonFXWithFollowers extends ITalonFXWithFollowers {
 
 		simStates = new TalonFXSimState[followers.length + 1];
 		simStates[0] = talonFx.getSimState();
+		alignments = new boolean[followers.length + 1];
 		alignments[0] = true;
 
 		for (int i = 0; i < followers.length; i++) {
 			simStates[i + 1] = followers[i].talonFx().getSimState();
-			alignments[i + 1] = followers[i - 1].alignment() == MotorAlignmentValue.Aligned;
+			alignments[i + 1] = followers[i].alignment() == MotorAlignmentValue.Aligned;
 		}
 
 		simNotifier =

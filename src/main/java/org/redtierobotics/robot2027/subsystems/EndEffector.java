@@ -1,14 +1,18 @@
 package org.redtierobotics.robot2027.subsystems;
 
 import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.PoundSquareInches;
 import static org.wpilib.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import org.redtierobotics.lib.config.MechanismConfigs.RollerConfig;
 import org.redtierobotics.lib.io.IMotor;
 import org.redtierobotics.lib.io.ITalonFX;
 import org.redtierobotics.lib.subsystem.State;
 import org.redtierobotics.lib.subsystem.Subsystem;
 import org.redtierobotics.robot2027.Ports;
+import org.wpilib.framework.RobotBase;
+import org.wpilib.math.system.DCMotor;
 import org.wpilib.units.measure.AngularVelocity;
 
 public class EndEffector implements Subsystem {
@@ -24,13 +28,16 @@ public class EndEffector implements Subsystem {
 			io.setVelocity(velocity);
 		}
 
-		public EndEffector getSubsystem() {
+		public Subsystem getSubsystem() {
 			return EndEffector.getInstance();
 		}
 	}
 
+	public RollerConfig config = new RollerConfig(5, PoundSquareInches.of(0.05));
+
 	public TalonFX motor = Ports.END_EFFECTOR.getTalonFX();
-	public IMotor io = new ITalonFX(motor, "EndEffector");
+	public IMotor io =
+			IMotor.getTalonFxIo(motor, "EndEffector", config.getSim(DCMotor.getKrakenX44(1)));
 
 	private static EndEffector instance;
 
@@ -54,14 +61,18 @@ public class EndEffector implements Subsystem {
 		return STOP;
 	}
 
-	public void log() {}
+	public void log() {
+		io.log();
+	}
 
 	public boolean atTarget() {
 		return io.velocityIsNear(RotationsPerSecond.of(0.5)) || pieceSensed();
 	}
 
 	public boolean pieceSensed() {
-		return !io.velocityIsNear(RotationsPerSecond.of(0.4))
-				&& ((ITalonFX) io).getMotor().getTorqueCurrent().getValue().gt(Amps.of(20));
+		return RobotBase.isReal()
+				? !io.velocityIsNear(RotationsPerSecond.of(0.4))
+						&& ((ITalonFX) io).getMotor().getTorqueCurrent().getValue().gt(Amps.of(20))
+				: io.velocityIsNear(RotationsPerSecond.of(0.5));
 	}
 }

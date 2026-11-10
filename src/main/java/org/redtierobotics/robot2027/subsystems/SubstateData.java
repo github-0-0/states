@@ -7,7 +7,7 @@ import org.redtierobotics.robot2027.subsystems.Indexer.IndexerState;
 import org.redtierobotics.robot2027.subsystems.IntakePivot.IntakePivotState;
 import org.redtierobotics.robot2027.subsystems.IntakeRoller.IntakeRollerState;
 
-public enum SuperState {
+public enum SubstateData {
 	INTAKING_1(
 			Arm.getInstance().HOME,
 			Elevator.getInstance().INTAKE,
@@ -72,7 +72,7 @@ public enum SuperState {
 	public IntakePivotState intakePivot;
 	public IntakeRollerState intakeRoller;
 
-	SuperState(
+	SubstateData(
 			ArmState arm,
 			ElevatorState elevator,
 			EndEffectorState endEffector,

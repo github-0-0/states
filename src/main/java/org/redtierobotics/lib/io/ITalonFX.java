@@ -23,9 +23,9 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import dev.doglog.DogLog;
 import org.redtierobotics.lib.util.CtreUtil;
 import org.wpilib.system.Notifier;
-import org.wpilib.telemetry.Telemetry;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.Current;
@@ -252,13 +252,13 @@ public class ITalonFX implements IMotor {
 
 	@Override
 	public void log() {
-		Telemetry.log(positionKey, positionSignal.getValue());
-		Telemetry.log(velocityKey, velocitySignal.getValue());
-		Telemetry.log(voltageKey, voltageSignal.getValue());
-		Telemetry.log(statorCurrentKey, statorCurrentSignal.getValue());
-		Telemetry.log(supplyCurrentKey, supplyCurrentSignal.getValue());
-		Telemetry.log(temperatureKey, temperatureSignal.getValue());
-		Telemetry.log(controlRequestKey, motor.getAppliedControl().getName());
+		DogLog.log(positionKey, positionSignal.getValue());
+		DogLog.log(velocityKey, velocitySignal.getValue());
+		DogLog.log(voltageKey, voltageSignal.getValue());
+		DogLog.log(statorCurrentKey, statorCurrentSignal.getValue());
+		DogLog.log(supplyCurrentKey, supplyCurrentSignal.getValue());
+		DogLog.log(temperatureKey, temperatureSignal.getValue());
+		DogLog.log(controlRequestKey, motor.getAppliedControl().getName());
 	}
 
 	public void setSlot(int slot) {

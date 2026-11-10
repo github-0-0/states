@@ -1,5 +1,9 @@
 package org.redtierobotics.lib.io;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import org.redtierobotics.lib.io.ITalonFXWithFollowers.TalonFXFollower;
+import org.redtierobotics.lib.sim.Simulation;
+import org.wpilib.framework.RobotBase;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.Current;
@@ -49,4 +53,13 @@ public interface IMotor {
 	void reset(Angle position);
 
 	void log();
+
+	public static IMotor getTalonFxIo(
+			TalonFX motor, String key, Simulation sim, TalonFXFollower... followers) {
+		return followers.length == 0
+				? RobotBase.isReal() ? new ITalonFX(motor, key) : new ISimTalonFX(motor, sim, key)
+				: RobotBase.isReal()
+						? new ITalonFXWithFollowers(motor, key, followers)
+						: new ISimTalonFXWithFollowers(motor, sim, key, followers);
+	}
 }
