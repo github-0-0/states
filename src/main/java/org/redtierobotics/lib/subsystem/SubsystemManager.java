@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import dev.doglog.DogLog;
+
 public class SubsystemManager {
 	private static SubsystemManager instance;
 
@@ -43,6 +45,7 @@ public class SubsystemManager {
 
 		for (Subsystem subsystem : subsystems) {
 			states.get(subsystem).periodic();
+			DogLog.log("States/" + subsystem.getClass().getSimpleName(), states.get(subsystem).toString());
 			subsystem.log();
 		}
 	}

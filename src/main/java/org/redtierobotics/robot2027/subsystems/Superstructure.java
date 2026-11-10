@@ -1,5 +1,6 @@
 package org.redtierobotics.robot2027.subsystems;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import org.redtierobotics.lib.subsystem.State;
@@ -13,6 +14,7 @@ public class Superstructure implements Subsystem {
 
 		public SuperState(SubstateData substate) {
 			this.substate = substate;
+			branches = new HashMap<>();
 		}
 
 		public void addBranch(BooleanSupplier trigger, State state) {
@@ -33,6 +35,7 @@ public class Superstructure implements Subsystem {
 		public void periodic() {
 			for (Map.Entry<BooleanSupplier, State> entry : branches.entrySet()) {
 				if (entry.getKey().getAsBoolean()) {
+					System.out.println("hi");
 					entry.getValue().apply();
 				}
 			}

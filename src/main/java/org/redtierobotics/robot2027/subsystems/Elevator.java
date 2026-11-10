@@ -5,10 +5,18 @@ import static org.wpilib.units.Units.Inches;
 import static org.wpilib.units.Units.Pounds;
 import static org.wpilib.units.Units.Radians;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import org.redtierobotics.lib.config.MechanismConfigs.ElevatorConfig;
 import org.redtierobotics.lib.io.IMotor;
+import org.redtierobotics.lib.io.ITalonFX;
 import org.redtierobotics.lib.io.ITalonFXWithFollowers.TalonFXFollower;
 import org.redtierobotics.lib.subsystem.State;
 import org.redtierobotics.lib.subsystem.Subsystem;
@@ -67,7 +75,33 @@ public class Elevator implements Subsystem {
 
 	public final ElevatorState SCORE = new ElevatorState(Inches.of(55));
 
-	public Elevator() {}
+	public Elevator() {
+		((ITalonFX) io)
+				.configure(
+						new TalonFXConfiguration()
+								.withSlot0(
+										new Slot0Configs()
+												.withKV(0.0)
+												.withKP(20.0)
+												.withKI(0.0)
+												.withKD(0.0)
+												.withKG(0.0)
+												.withGravityType(GravityTypeValue.Arm_Cosine))
+								.withCurrentLimits(
+										new CurrentLimitsConfigs()
+												.withStatorCurrentLimit(40)
+												.withSupplyCurrentLimit(30)
+												.withStatorCurrentLimitEnable(true)
+												.withSupplyCurrentLimitEnable(true))
+								.withMotionMagic(
+										new MotionMagicConfigs()
+												.withMotionMagicAcceleration(5 * 5)
+												.withMotionMagicCruiseVelocity(5 * 2)
+												.withMotionMagicJerk(5 * 10))
+								.withVoltage(
+										new VoltageConfigs().withPeakForwardVoltage(12.0).withPeakReverseVoltage(-12.0))
+								.withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(5)));
+	}
 
 	public State getDefaultState() {
 		return HOME;

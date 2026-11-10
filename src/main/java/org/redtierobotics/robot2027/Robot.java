@@ -13,6 +13,7 @@ import org.redtierobotics.robot2027.subsystems.EndEffector;
 import org.redtierobotics.robot2027.subsystems.Indexer;
 import org.redtierobotics.robot2027.subsystems.IntakePivot;
 import org.redtierobotics.robot2027.subsystems.IntakeRoller;
+import org.redtierobotics.robot2027.subsystems.Superstructure;
 import org.wpilib.driverstation.XboxController;
 import org.wpilib.framework.TimedRobot;
 import org.wpilib.tunable.Selectable;
@@ -25,7 +26,7 @@ import org.wpilib.tunable.Selectable;
 public class Robot extends TimedRobot {
 	private String autoSelected;
 	private final Selectable<String> chooser = new Selectable<>();
-	public static XboxController controller;
+	public static XboxController controller = new XboxController(0);
 
 	private final SubsystemManager sm;
 
@@ -44,6 +45,7 @@ public class Robot extends TimedRobot {
 		sm.registerSubsystem(Indexer.getInstance());
 		sm.registerSubsystem(IntakePivot.getInstance());
 		sm.registerSubsystem(IntakeRoller.getInstance());
+		sm.registerSubsystem(Superstructure.getInstance());
 
 		DogLog.log("test", "test");
 		DogLog.time("Time");
